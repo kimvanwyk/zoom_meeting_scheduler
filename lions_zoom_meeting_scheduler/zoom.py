@@ -1,3 +1,5 @@
+import arrow
+
 from collections import namedtuple
 import datetime
 import os
@@ -45,7 +47,7 @@ def make_meeting(topic, requester, start_datetime, duration):
     passcode = randint(100000, 999999)
     data = DEFAULTS.copy()
     data["topic"] = topic
-    data["start_time"] = start_datetime.strftime("%Y-%m-%dT%H:%M:%S")
+    data["start_time"] = start_datetime.format("YYYY-MM-DDTHH:mm:ss")
     data["duration"] = duration
     data["agenda"] = f"Requester Email: {requester}"
     data["password"] = passcode
@@ -62,9 +64,11 @@ def make_meeting(topic, requester, start_datetime, duration):
 
 
 if __name__ == "__main__":
-    res = requests.get(
-        "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
-        headers=auth_headers,
-    )
-    print("Active user request")
-    print(res.json())
+    # res = requests.get(
+    #     "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
+    #     headers=auth_headers,
+    # )
+    # print("Active user request")
+    # print(res.json())
+
+    make_meeting("Test", "me", arrow.utcnow(), 155)
