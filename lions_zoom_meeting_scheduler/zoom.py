@@ -9,7 +9,7 @@ import requests
 
 load_dotenv()
 
-MEETING = namedtuple("Meeting", ("join_url", "passcode"))
+MEETING = namedtuple("Meeting", ("id", "join_url", "passcode"))
 
 JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
 JWT_PAYLOAD = {"iss": os.getenv("ZOOM_API_KEY")}
@@ -57,18 +57,14 @@ def make_meeting(topic, requester, start_datetime, duration):
     )
     res.raise_for_status()
 
-    return MEETING(res.json()["join_url"], passcode)
+    json = res.json()
+    return MEETING(json["id"], json["join_url"], passcode)
 
 
 if __name__ == "__main__":
-
-    # res = requests.get(
-    #     "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
-    #     headers=auth_headers,
-    # )
-    # print("Active user request")
-    # print(res.json())
-
-    (url, code) = make_meeting("Test", "ME!", datetime.datetime.now(), 150)
-    print(url)
-    print(code)
+    res = requests.get(
+        "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
+        headers=auth_headers,
+    )
+    print("Active user request")
+    print(res.json())
