@@ -12,7 +12,8 @@ import requests
 load_dotenv()
 
 MEETING_CONFIG = namedtuple(
-    "MeetingConfig", ("topic", "requester_email", "start_datetime", "duration")
+    "MeetingConfig",
+    ("topic", "requester_name", "requester_email", "start_datetime", "duration"),
 )
 MEETING = namedtuple("Meeting", ("id", "join_url", "passcode"))
 
