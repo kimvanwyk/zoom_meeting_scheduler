@@ -11,6 +11,9 @@ import requests
 
 load_dotenv()
 
+MEETING_CONFIG = namedtuple(
+    "MeetingConfig", ("topic", "requester_email", "start_datetime", "duration")
+)
 MEETING = namedtuple("Meeting", ("id", "join_url", "passcode"))
 
 JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
@@ -41,15 +44,15 @@ def get_auth_headers():
     }
 
 
-def make_meeting(topic, requester, start_datetime, duration):
+def make_meeting(meeting_config):
     auth_headers = get_auth_headers()
 
     passcode = randint(100000, 999999)
     data = DEFAULTS.copy()
-    data["topic"] = topic
-    data["start_time"] = start_datetime.format("YYYY-MM-DDTHH:mm:ss")
-    data["duration"] = duration
-    data["agenda"] = f"Requester Email: {requester}"
+    data["topic"] = meeting_config.topic
+    data["start_time"] = meeting_config.start_datetime.format("YYYY-MM-DDTHH:mm:ss")
+    data["duration"] = meeting_config.duration
+    data["agenda"] = f"Requester Email: {meeting_config.requester_email}"
     data["password"] = passcode
 
     res = requests.post(
@@ -64,11 +67,9 @@ def make_meeting(topic, requester, start_datetime, duration):
 
 
 if __name__ == "__main__":
-    # res = requests.get(
-    #     "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
-    #     headers=auth_headers,
-    # )
-    # print("Active user request")
-    # print(res.json())
-
-    make_meeting("Test", "me", arrow.utcnow(), 155)
+    res = requests.get(
+        "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
+        headers=auth_headers,
+    )
+    print("Active user request")
+    print(res.json())
