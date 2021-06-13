@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "lions_zoom_meeting_scheduler"
+version = "0.1.0"
+description = "CLI app to schedule meetings for members and clubs with Lions District 410E's Zoom account"
+authors = ["Kim van Wyk <kimv@sahomeloans.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+zoomus = "^1.1.6"
+python-dotenv = "^0.17.1"
+authlib = "^0.15.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.6b0"
+ptpython = "^3.0.17"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
