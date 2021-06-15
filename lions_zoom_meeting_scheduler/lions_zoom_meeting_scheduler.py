@@ -1,9 +1,11 @@
 from collections import namedtuple
+import os
 
 import zoom
 
 import arrow
 import inquirer
+import pyperclip
 
 
 def get_month_list():
@@ -47,7 +49,6 @@ def ask_questions():
     ]
     answers = inquirer.prompt(questions)
     dt = answers["month"]
-    print(dt)
     (hour, minute) = [int(c) for c in answers["time"].split(":")]
     dt = dt.replace(
         day=int(answers["day"]), hour=hour, minute=minute, second=0, microsecond=0
@@ -66,7 +67,35 @@ def make_meeting(mc):
     return meeting
 
 
+def print_message(meeting_config, meeting_details):
+    with open("email.txt", "r") as fh:
+        template = fh.read()
+
+    time = f"{mc.start_datetime:DD MMM YYYY} at {mc.start_datetime:HH:mm} to {mc.start_datetime.shift(minutes=+mc.duration):HH:mm}"
+
+    subject = f'"{mc.topic}" Zoom meeting for {time}'
+    msg = template.format(
+        **{
+            "name": mc.requester_name,
+            "topic": mc.topic,
+            "link": m.join_url,
+            "time": time,
+            "passcode": m.passcode,
+            "username": os.getenv("ZOOM_USERNAME"),
+            "password": os.getenv("ZOOM_PASSWORD"),
+        }
+    )
+    print(f"Subject: {subject}")
+    pyperclip.copy(subject)
+    input()
+    print("Message:")
+    print(msg)
+    pyperclip.copy(msg)
+    input()
+
+
 if __name__ == "__main__":
     mc = ask_questions()
-    print(mc)
-    print(make_meeting(mc))
+    m = make_meeting(mc)
+
+    print_message(mc, m)

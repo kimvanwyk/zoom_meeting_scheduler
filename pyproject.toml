@@ -11,6 +11,7 @@ authlib = "^0.15.4"
 inquirer = "^2.7.0"
 arrow = "^1.1.0"
 requests = "^2.25.1"
+pyperclip = "^1.8.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
