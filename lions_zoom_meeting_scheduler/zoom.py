@@ -53,7 +53,9 @@ def make_meeting(meeting_config):
     data["topic"] = meeting_config.topic
     data["start_time"] = meeting_config.start_datetime.format("YYYY-MM-DDTHH:mm:ss")
     data["duration"] = meeting_config.duration
-    data["agenda"] = f"Requester Email: {meeting_config.requester_email}"
+    data[
+        "agenda"
+    ] = f"Requester: {meeting_config.requester_name} (Email: {meeting_config.requester_email})"
     data["password"] = passcode
 
     res = requests.post(
