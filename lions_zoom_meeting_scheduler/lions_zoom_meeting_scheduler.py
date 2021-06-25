@@ -4,7 +4,8 @@ import os
 import zoom
 
 import arrow
-import inquirer
+from InquirerPy import inquirer
+from InquirerPy.validator import NumberValidator
 import pyperclip
 
 
@@ -13,52 +14,40 @@ def get_month_list():
     month = arrow.utcnow()
     months = []
     for d in range(12):
-        months.append((month.format("MMM YYYY"), month))
+        months.append({"name": month.format("MMM YYYY"), "value": month})
         month = month.shift(months=+1)
     return months
 
 
 def ask_questions():
-
-    questions = [
-        inquirer.Text(
-            "topic",
-            "Meeting topic",
-        ),
-        inquirer.Text(
-            "requestor_name",
-            "Meeting requestor name",
-        ),
-        inquirer.Text(
-            "requestor_email",
-            "Meeting requestor email",
-        ),
-        inquirer.List("month", "Meeting month", get_month_list()),
-        inquirer.Text(
-            "day",
-            "Meeting day",
-        ),
-        inquirer.Text(
-            "time",
-            "Meeting time (HH:MM)",
-        ),
-        inquirer.Text(
-            "duration",
-            "Meeting duration (minutes)",
-        ),
-    ]
-    answers = inquirer.prompt(questions)
-    dt = answers["month"]
-    (hour, minute) = [int(c) for c in answers["time"].split(":")]
-    dt = dt.replace(
-        day=int(answers["day"]), hour=hour, minute=minute, second=0, microsecond=0
+    topic = inquirer.text(message="Meeting topic").execute()
+    requestor_name = inquirer.text(message="Meeting requestor name").execute()
+    requestor_email = inquirer.text(message="Meeting requestor email").execute()
+    dt = inquirer.select(message="Meeting month", choices=get_month_list()).execute()
+    day = int(
+        inquirer.text(message="Meeting day", validate=NumberValidator()).execute()
     )
+    (hour, minute) = inquirer.text(
+        message="Meeting time (HH:MM)",
+        validate=lambda text: len(text) == 5
+        and text[2] == ":"
+        and all([text[i] in "012456789" for i in (0, 1, 3, 4)]),
+        invalid_message="Value should be in format HH:MM",
+        filter=lambda x: [int(c) for c in x.split(":")],
+    ).execute()
+    duration = int(
+        inquirer.text(
+            message="Meeting duration (minutes)", validate=NumberValidator()
+        ).execute()
+    )
+    dt = dt.replace(day=day, hour=hour, minute=minute, second=0, microsecond=0)
+
     return zoom.MEETING_CONFIG(
-        answers["topic"],
-        answers["requestor_name"],
-        answers["requestor_email"],
+        topic,
+        requestor_name,
+        requestor_email,
         dt,
-        int(answers["duration"]),
+        duration,
     )
 
 
@@ -97,5 +86,4 @@ def print_message(meeting_config, meeting_details):
 if __name__ == "__main__":
     mc = ask_questions()
     m = make_meeting(mc)
-
     print_message(mc, m)
