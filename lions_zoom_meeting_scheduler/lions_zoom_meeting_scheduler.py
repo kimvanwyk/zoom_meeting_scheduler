@@ -76,7 +76,7 @@ def print_message(meeting_config, meeting_details):
     subject = f'"{mc.topic}" Zoom meeting for {time}'
     msg = template.format(
         **{
-            "name": mc.requester_name,
+            "name": mc.requester_name.split(" ")[0],
             "topic": mc.topic,
             "link": m.join_url,
             "time": time,
