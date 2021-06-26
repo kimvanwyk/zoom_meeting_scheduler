@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lions_zoom_meeting_scheduler"
 version = "0.1.0"
-description = "CLI app to schedule meetings for members and clubs with Lions District 410E's Zoom account"
+description = "CLI app to schedule Zoom meetings with a shared Zoom account and provide details to email to the meeting requester"
 authors = ["Kim van Wyk <kimv@sahomeloans.com>"]
 
 [tool.poetry.dependencies]
