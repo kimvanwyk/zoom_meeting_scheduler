@@ -59,7 +59,7 @@ def make_meeting(meeting_config):
     data["password"] = passcode
 
     res = requests.post(
-        f"https://api.zoom.us/v2/users/{os.getenv('ZOOM_USER_ID')}/meetings",
+        f"https://api.zoom.us/v2/users/me/meetings",
         json=data,
         headers=auth_headers,
     )
