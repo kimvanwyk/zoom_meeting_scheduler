@@ -31,7 +31,7 @@ def ask_questions():
         message="Meeting time (HH:MM)",
         validate=lambda text: len(text) == 5
         and text[2] == ":"
-        and all([text[i] in "012456789" for i in (0, 1, 3, 4)]),
+        and all([text[i] in "0123456789" for i in (0, 1, 3, 4)]),
         invalid_message="Value should be in format HH:MM",
         filter=lambda x: [int(c) for c in x.split(":")],
     ).execute()
