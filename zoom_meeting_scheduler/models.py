@@ -7,7 +7,19 @@ class MeetingTime(BaseModel, arbitrary_types_allowed=True):
     duration: int
 
 
+class Requester(BaseModel):
+    name: str
+    # email is deliberately str not a validated email field as the value need not be set
+    email: str
+
+
 class Meeting(BaseModel):
     id: int
     join_url: HttpUrl
     passcode: int
+
+
+class MeetingConfig(BaseModel):
+    topic: str
+    requester: Requester
+    meeting_time: MeetingTime

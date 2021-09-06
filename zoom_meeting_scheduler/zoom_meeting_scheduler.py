@@ -21,8 +21,8 @@ def get_month_list():
 
 def ask_questions():
     topic = inquirer.text(message="Meeting topic").execute()
-    requestor_name = inquirer.text(message="Meeting requestor name").execute()
-    requestor_email = inquirer.text(message="Meeting requestor email").execute()
+    requester_name = inquirer.text(message="Meeting requester name").execute()
+    requester_email = inquirer.text(message="Meeting requester email").execute()
     dt = inquirer.select(message="Meeting month", choices=get_month_list()).execute()
     day = int(
         inquirer.text(message="Meeting day", validate=NumberValidator()).execute()
@@ -45,11 +45,10 @@ def ask_questions():
         duration=duration,
     )
 
-    return zoom.MEETING_CONFIG(
-        topic,
-        requestor_name,
-        requestor_email,
-        mt,
+    return models.MeetingConfig(
+        topic=topic,
+        requester=models.Requester(name=requester_name, email=requester_email),
+        meeting_time=mt,
     )
 
 
@@ -67,7 +66,7 @@ def print_message(meeting_config, meeting_details):
     subject = f'"{mc.topic}" Zoom meeting for {time}'
     msg = template.format(
         **{
-            "name": mc.requester_name.split(" ")[0],
+            "name": mc.requester.name.split(" ")[0],
             "topic": mc.topic,
             "link": m.join_url,
             "time": time,

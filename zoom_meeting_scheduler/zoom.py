@@ -11,11 +11,6 @@ import requests
 
 load_dotenv()
 
-MEETING_CONFIG = namedtuple(
-    "MeetingConfig",
-    ("topic", "requester_name", "requester_email", "meeting_time"),
-)
-
 JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
 JWT_PAYLOAD = {"iss": os.getenv("ZOOM_API_KEY")}
 
@@ -56,7 +51,7 @@ def make_meeting(meeting_config):
     data["duration"] = meeting_config.meeting_time.duration
     data[
         "agenda"
-    ] = f"Requester: {meeting_config.requester_name} (Email: {meeting_config.requester_email})"
+    ] = f"Requester: {meeting_config.requester.name} (Email: {meeting_config.requester.email})"
     data["password"] = passcode
 
     # res = requests.post(
