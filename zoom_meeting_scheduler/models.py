@@ -1,6 +1,8 @@
 import arrow
 from pydantic import BaseModel, HttpUrl
 
+from typing import List
+
 
 class MeetingTime(BaseModel, arbitrary_types_allowed=True):
     datetime: arrow.Arrow
@@ -22,4 +24,4 @@ class Meeting(BaseModel):
 class MeetingConfig(BaseModel):
     topic: str
     requester: Requester
-    meeting_time: MeetingTime
+    meeting_times: List[MeetingTime]

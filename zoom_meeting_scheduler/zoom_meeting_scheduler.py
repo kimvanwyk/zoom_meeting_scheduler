@@ -23,32 +23,42 @@ def ask_questions():
     topic = inquirer.text(message="Meeting topic").execute()
     requester_name = inquirer.text(message="Meeting requester name").execute()
     requester_email = inquirer.text(message="Meeting requester email").execute()
-    dt = inquirer.select(message="Meeting month", choices=get_month_list()).execute()
-    day = int(
-        inquirer.text(message="Meeting day", validate=NumberValidator()).execute()
-    )
-    (hour, minute) = inquirer.text(
-        message="Meeting time (HH:MM)",
-        validate=lambda text: len(text) == 5
-        and text[2] == ":"
-        and all([text[i] in "0123456789" for i in (0, 1, 3, 4)]),
-        invalid_message="Value should be in format HH:MM",
-        filter=lambda x: [int(c) for c in x.split(":")],
-    ).execute()
-    duration = int(
-        inquirer.text(
-            message="Meeting duration (minutes)", validate=NumberValidator()
+    meeting_times = []
+    cont = True
+    while cont:
+        dt = inquirer.select(
+            message="Meeting month", choices=get_month_list()
         ).execute()
-    )
-    mt = models.MeetingTime(
-        datetime=dt.replace(day=day, hour=hour, minute=minute, second=0, microsecond=0),
-        duration=duration,
-    )
+        day = int(
+            inquirer.text(message="Meeting day", validate=NumberValidator()).execute()
+        )
+        (hour, minute) = inquirer.text(
+            message="Meeting time (HH:MM)",
+            validate=lambda text: len(text) == 5
+            and text[2] == ":"
+            and all([text[i] in "0123456789" for i in (0, 1, 3, 4)]),
+            invalid_message="Value should be in format HH:MM",
+            filter=lambda x: [int(c) for c in x.split(":")],
+        ).execute()
+        duration = int(
+            inquirer.text(
+                message="Meeting duration (minutes)", validate=NumberValidator()
+            ).execute()
+        )
+        meeting_times.append(
+            models.MeetingTime(
+                datetime=dt.replace(
+                    day=day, hour=hour, minute=minute, second=0, microsecond=0
+                ),
+                duration=duration,
+            )
+        )
+        cont = inquirer.confirm(message="Add another meeting?", default=False).execute()
 
     return models.MeetingConfig(
         topic=topic,
         requester=models.Requester(name=requester_name, email=requester_email),
-        meeting_time=mt,
+        meeting_times=meeting_times,
     )
 
 
@@ -86,5 +96,6 @@ def print_message(meeting_config, meeting_details):
 
 if __name__ == "__main__":
     mc = ask_questions()
-    m = make_meeting(mc)
-    print_message(mc, m)
+    # m = make_meeting(mc)
+    # print_message(mc, m)
+    print(mc)
