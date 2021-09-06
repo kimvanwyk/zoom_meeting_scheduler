@@ -15,13 +15,17 @@ class Requester(BaseModel):
     email: str
 
 
-class Meeting(BaseModel):
+class MeetingConfig(BaseModel):
+    topic: str
+    requester: Requester
+
+
+class ZoomMeeting(BaseModel):
     id: int
     join_url: HttpUrl
     passcode: int
 
 
-class MeetingConfig(BaseModel):
-    topic: str
-    requester: Requester
-    meeting_times: List[MeetingTime]
+class Meeting(BaseModel):
+    meeting_time: MeetingTime
+    zoom_meeting: ZoomMeeting

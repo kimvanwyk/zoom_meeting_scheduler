@@ -1,0 +1,20 @@
+Good day {{name}},
+
+I've added the "{{topic}}" Zoom meeting{% if plural %}s{% endif %} to the calendar.
+
+{% for meeting in meetings_details %}
+Date and time: {{ meeting.time }}
+The meeting link is: {{ meeting.link }}
+The passcode is: {{ meeting.passcode }}
+
+{% endfor %}
+{% if not plural %}The meeting is set so that anyone can join it{% else %}The meetings are set so that anyone can join them{% endif %}, so you probably don't need the District Zoom accounts. If you do need the District Zoom account credentials they are:
+Username: {{username}}
+Password: {{password}}
+
+To use these details in your Zoom application, click on the top right where you see your initials and select "Switch Account". If you use the above login details you will be in as the District Zoom account, with unlimited meeting capacity.
+
+Please switch back to your own account when you are done to ensure Zoom doesn't give any issues when the District account is next needed.
+
+Regards
+Kim

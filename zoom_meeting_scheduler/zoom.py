@@ -39,31 +39,46 @@ def get_auth_headers():
     }
 
 
-def make_meeting(meeting_config):
+def make_meetings(meeting_config, meeting_times):
     auth_headers = get_auth_headers()
 
-    passcode = randint(100000, 999999)
-    data = DEFAULTS.copy()
-    data["topic"] = meeting_config.topic
-    data["start_time"] = meeting_config.meeting_time.datetime.format(
-        "YYYY-MM-DDTHH:mm:ss"
-    )
-    data["duration"] = meeting_config.meeting_time.duration
-    data[
-        "agenda"
-    ] = f"Requester: {meeting_config.requester.name} (Email: {meeting_config.requester.email})"
-    data["password"] = passcode
+    meetings = []
+    for mt in meeting_times:
+        passcode = randint(100000, 999999)
+        data = DEFAULTS.copy()
+        data["topic"] = meeting_config.topic
+        data["start_time"] = mt.datetime.format("YYYY-MM-DDTHH:mm:ss")
+        data["duration"] = mt.duration
+        data[
+            "agenda"
+        ] = f"Requester: {meeting_config.requester.name} (Email: {meeting_config.requester.email})"
+        data["password"] = passcode
 
-    # res = requests.post(
-    #     f"https://api.zoom.us/v2/users/me/meetings",
-    #     json=data,
-    #     headers=auth_headers,
-    # )
-    # res.raise_for_status()
+        # res = requests.post(
+        #     f"https://api.zoom.us/v2/users/me/meetings",
+        #     json=data,
+        #     headers=auth_headers,
+        # )
+        # res.raise_for_status()
 
-    # json = res.json()
-    # return MEETING(id=json["id"], join_url=json["join_url"], passcode=passcode)
-    return models.Meeting(id="12345", join_url="http://zoom.us/url", passcode=123456)
+        # json = res.json()
+        # meetings.append(
+        #     models.Meeting(
+        #         meeting_time=mt,
+        #         zoom_meeting=models.ZoomMeeting(
+        #             id=json["id"], join_url=json["join_url"], passcode=passcode
+        #         ),
+        #     )
+        # )
+        meetings.append(
+            models.Meeting(
+                meeting_time=mt,
+                zoom_meeting=models.ZoomMeeting(
+                    id="12345", join_url="http://zoom.us/url", passcode=123456
+                ),
+            ),
+        )
+    return meetings
 
 
 if __name__ == "__main__":

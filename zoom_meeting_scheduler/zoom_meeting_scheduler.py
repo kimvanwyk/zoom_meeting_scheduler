@@ -6,7 +6,16 @@ import zoom
 import arrow
 from InquirerPy import inquirer
 from InquirerPy.validator import NumberValidator
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import pyperclip
+from rich import print
+
+JINJA_ENV = Environment(
+    loader=FileSystemLoader("templates"),
+    autoescape=select_autoescape(),
+)
+
+TEMPLATE = JINJA_ENV.get_template("email.txt")
 
 
 def get_month_list():
@@ -55,32 +64,38 @@ def ask_questions():
         )
         cont = inquirer.confirm(message="Add another meeting?", default=False).execute()
 
-    return models.MeetingConfig(
-        topic=topic,
-        requester=models.Requester(name=requester_name, email=requester_email),
-        meeting_times=meeting_times,
+    return (
+        models.MeetingConfig(
+            topic=topic,
+            requester=models.Requester(name=requester_name, email=requester_email),
+        ),
+        meeting_times,
     )
 
 
-def make_meeting(mc):
-    meeting = zoom.make_meeting(mc)
-    return meeting
+def make_meetings(mc, meeting_times):
+    meetings = zoom.make_meetings(mc, meeting_times)
+    return meetings
 
 
-def print_message(meeting_config, meeting_details):
+def print_message(meeting_config):
     with open("email.txt", "r") as fh:
         template = fh.read()
 
-    time = f"{mc.meeting_time.datetime:DD MMM YYYY} at {mc.meeting_time.datetime:HH:mm} to {mc.meeting_time.datetime.shift(minutes=+mc.meeting_time.duration):HH:mm}"
+    plural = len(meetings_details) > 1
+    meetings = []
+    for meeting in meeting_config.meetings:
+        meetings[
+            "time"
+        ] = f"{mc.meeting_time.datetime:DD MMM YYYY} at {mc.meeting_time.datetime:HH:mm} to {mc.meeting_time.datetime.shift(minutes=+mc.meeting_time.duration):HH:mm}"
 
-    subject = f'"{mc.topic}" Zoom meeting for {time}'
-    msg = template.format(
-        **{
+    subject = f'"{mc.topic}" Zoom meeting{"s" if plural else ""}'
+    msg = TEMPLATE.render(
+        {
+            "plural": plural,
             "name": mc.requester.name.split(" ")[0],
             "topic": mc.topic,
-            "link": m.join_url,
-            "time": time,
-            "passcode": m.passcode,
+            "meetings": meetings_details,
             "username": os.getenv("ZOOM_USERNAME"),
             "password": os.getenv("ZOOM_PASSWORD"),
         }
@@ -95,7 +110,7 @@ def print_message(meeting_config, meeting_details):
 
 
 if __name__ == "__main__":
-    mc = ask_questions()
-    # m = make_meeting(mc)
-    # print_message(mc, m)
-    print(mc)
+    (mc, meeting_times) = ask_questions()
+    meetings = make_meetings(mc, meeting_times)
+    # print_message(mc)
+    print(mc, meetings)
