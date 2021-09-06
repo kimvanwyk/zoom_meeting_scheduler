@@ -1,4 +1,4 @@
-import arrow
+import models
 
 from collections import namedtuple
 import datetime
@@ -13,7 +13,7 @@ load_dotenv()
 
 MEETING_CONFIG = namedtuple(
     "MeetingConfig",
-    ("topic", "requester_name", "requester_email", "start_datetime", "duration"),
+    ("topic", "requester_name", "requester_email", "meeting_time"),
 )
 MEETING = namedtuple("Meeting", ("id", "join_url", "passcode"))
 
@@ -51,28 +51,34 @@ def make_meeting(meeting_config):
     passcode = randint(100000, 999999)
     data = DEFAULTS.copy()
     data["topic"] = meeting_config.topic
-    data["start_time"] = meeting_config.start_datetime.format("YYYY-MM-DDTHH:mm:ss")
-    data["duration"] = meeting_config.duration
+    data["start_time"] = meeting_config.meeting_time.datetime.format(
+        "YYYY-MM-DDTHH:mm:ss"
+    )
+    data["duration"] = meeting_config.meeting_time.duration
     data[
         "agenda"
     ] = f"Requester: {meeting_config.requester_name} (Email: {meeting_config.requester_email})"
     data["password"] = passcode
 
-    res = requests.post(
-        f"https://api.zoom.us/v2/users/me/meetings",
-        json=data,
-        headers=auth_headers,
-    )
-    res.raise_for_status()
+    # res = requests.post(
+    #     f"https://api.zoom.us/v2/users/me/meetings",
+    #     json=data,
+    #     headers=auth_headers,
+    # )
+    # res.raise_for_status()
 
-    json = res.json()
-    return MEETING(json["id"], json["join_url"], passcode)
+    # json = res.json()
+    # return MEETING(json["id"], json["join_url"], passcode)
+    return MEETING("12345", "url", 123456)
 
 
 if __name__ == "__main__":
+    import json
+
     res = requests.get(
-        "https://api.zoom.us/v2/users?status=active&page_size=30&page_number=1",
-        headers=auth_headers,
+        "https://api.zoom.us/v2/users/me/meetings?type=scheduled&page_size=100",
+        headers=get_auth_headers(),
     )
-    print("Active user request")
-    print(res.json())
+    print("All meetings")
+    with open("meetings.json", "w") as fh:
+        json.dump(res.json(), fh)

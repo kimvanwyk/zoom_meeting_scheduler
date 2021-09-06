@@ -1,6 +1,6 @@
-from collections import namedtuple
 import os
 
+import models
 import zoom
 
 import arrow
@@ -40,14 +40,16 @@ def ask_questions():
             message="Meeting duration (minutes)", validate=NumberValidator()
         ).execute()
     )
-    dt = dt.replace(day=day, hour=hour, minute=minute, second=0, microsecond=0)
+    mt = models.MeetingTime(
+        datetime=dt.replace(day=day, hour=hour, minute=minute, second=0, microsecond=0),
+        duration=duration,
+    )
 
     return zoom.MEETING_CONFIG(
         topic,
         requestor_name,
         requestor_email,
-        dt,
-        duration,
+        mt,
     )
 
 
@@ -60,7 +62,7 @@ def print_message(meeting_config, meeting_details):
     with open("email.txt", "r") as fh:
         template = fh.read()
 
-    time = f"{mc.start_datetime:DD MMM YYYY} at {mc.start_datetime:HH:mm} to {mc.start_datetime.shift(minutes=+mc.duration):HH:mm}"
+    time = f"{mc.meeting_time.datetime:DD MMM YYYY} at {mc.meeting_time.datetime:HH:mm} to {mc.meeting_time.datetime.shift(minutes=+mc.meeting_time.duration):HH:mm}"
 
     subject = f'"{mc.topic}" Zoom meeting for {time}'
     msg = template.format(
