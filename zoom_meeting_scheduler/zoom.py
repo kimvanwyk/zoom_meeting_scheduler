@@ -53,27 +53,16 @@ def make_meetings(meeting_config):
         ] = f"Requester: {meeting_config.requester.name} (Email: {meeting_config.requester.email})"
         data["password"] = passcode
 
-        # res = requests.post(
-        #     f"https://api.zoom.us/v2/users/me/meetings",
-        #     json=data,
-        #     headers=auth_headers,
-        # )
-        # res.raise_for_status()
+        res = requests.post(
+            f"https://api.zoom.us/v2/users/me/meetings",
+            json=data,
+            headers=auth_headers,
+        )
+        res.raise_for_status()
 
-        # json = res.json()
-        # meetings.append(
-        #     models.Meeting(
-        #         meeting_time=mt,
-        #         zoom_meeting=models.ZoomMeeting(
-        #             id=json["id"], join_url=json["join_url"], passcode=passcode
-        #         ),
-        #     )
-        # )
-        # meeting.zoom_meeting = models.ZoomMeeting(
-        #     id=json["id"], join_url=json["join_url"], passcode=passcode
-        # )
+        json = res.json()
         meeting.zoom_meeting = models.ZoomMeeting(
-            id="12345", join_url="http://zoom.us/url", passcode=123456
+            id=json["id"], join_url=json["join_url"], passcode=passcode
         )
     return meeting_config
 
