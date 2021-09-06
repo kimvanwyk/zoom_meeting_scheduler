@@ -64,38 +64,38 @@ def ask_questions():
         )
         cont = inquirer.confirm(message="Add another meeting?", default=False).execute()
 
-    return (
-        models.MeetingConfig(
-            topic=topic,
-            requester=models.Requester(name=requester_name, email=requester_email),
-        ),
-        meeting_times,
+    return models.MeetingConfig(
+        topic=topic,
+        requester=models.Requester(name=requester_name, email=requester_email),
+        meetings=[models.Meeting(meeting_time=mt) for mt in meeting_times],
     )
 
 
-def make_meetings(mc, meeting_times):
-    meetings = zoom.make_meetings(mc, meeting_times)
-    return meetings
+def make_meetings(meeting_config):
+    mc = zoom.make_meetings(meeting_config)
+    return meeting_config
 
 
 def print_message(meeting_config):
-    with open("email.txt", "r") as fh:
-        template = fh.read()
-
-    plural = len(meetings_details) > 1
+    plural = len(meeting_config.meetings) > 1
     meetings = []
     for meeting in meeting_config.meetings:
-        meetings[
-            "time"
-        ] = f"{mc.meeting_time.datetime:DD MMM YYYY} at {mc.meeting_time.datetime:HH:mm} to {mc.meeting_time.datetime.shift(minutes=+mc.meeting_time.duration):HH:mm}"
+        dt = meeting.meeting_time.datetime
+        meetings.append(
+            {
+                "time": f"{dt:DD MMM YYYY} at {dt:HH:mm} to {dt.shift(minutes=+meeting.meeting_time.duration):HH:mm}",
+                "link": meeting.zoom_meeting.join_url,
+                "passcode": meeting.zoom_meeting.passcode,
+            }
+        )
 
-    subject = f'"{mc.topic}" Zoom meeting{"s" if plural else ""}'
+    subject = f'"{meeting_config.topic}" Zoom meeting{"s" if plural else ""}'
     msg = TEMPLATE.render(
         {
             "plural": plural,
-            "name": mc.requester.name.split(" ")[0],
-            "topic": mc.topic,
-            "meetings": meetings_details,
+            "name": meeting_config.requester.name.split(" ")[0],
+            "topic": meeting_config.topic,
+            "meetings": meetings,
             "username": os.getenv("ZOOM_USERNAME"),
             "password": os.getenv("ZOOM_PASSWORD"),
         }
@@ -110,7 +110,6 @@ def print_message(meeting_config):
 
 
 if __name__ == "__main__":
-    (mc, meeting_times) = ask_questions()
-    meetings = make_meetings(mc, meeting_times)
-    # print_message(mc)
-    print(mc, meetings)
+    (mc) = ask_questions()
+    mc = make_meetings(mc)
+    print_message(mc)

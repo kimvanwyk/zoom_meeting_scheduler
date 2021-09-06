@@ -2,7 +2,7 @@ Good day {{name}},
 
 I've added the "{{topic}}" Zoom meeting{% if plural %}s{% endif %} to the calendar.
 
-{% for meeting in meetings_details %}
+{% for meeting in meetings %}
 Date and time: {{ meeting.time }}
 The meeting link is: {{ meeting.link }}
 The passcode is: {{ meeting.passcode }}

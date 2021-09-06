@@ -39,16 +39,15 @@ def get_auth_headers():
     }
 
 
-def make_meetings(meeting_config, meeting_times):
+def make_meetings(meeting_config):
     auth_headers = get_auth_headers()
 
-    meetings = []
-    for mt in meeting_times:
+    for meeting in meeting_config.meetings:
         passcode = randint(100000, 999999)
         data = DEFAULTS.copy()
         data["topic"] = meeting_config.topic
-        data["start_time"] = mt.datetime.format("YYYY-MM-DDTHH:mm:ss")
-        data["duration"] = mt.duration
+        data["start_time"] = meeting.meeting_time.datetime.format("YYYY-MM-DDTHH:mm:ss")
+        data["duration"] = meeting.meeting_time.duration
         data[
             "agenda"
         ] = f"Requester: {meeting_config.requester.name} (Email: {meeting_config.requester.email})"
@@ -70,15 +69,13 @@ def make_meetings(meeting_config, meeting_times):
         #         ),
         #     )
         # )
-        meetings.append(
-            models.Meeting(
-                meeting_time=mt,
-                zoom_meeting=models.ZoomMeeting(
-                    id="12345", join_url="http://zoom.us/url", passcode=123456
-                ),
-            ),
+        # meeting.zoom_meeting = models.ZoomMeeting(
+        #     id=json["id"], join_url=json["join_url"], passcode=passcode
+        # )
+        meeting.zoom_meeting = models.ZoomMeeting(
+            id="12345", join_url="http://zoom.us/url", passcode=123456
         )
-    return meetings
+    return meeting_config
 
 
 if __name__ == "__main__":
