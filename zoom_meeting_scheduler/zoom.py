@@ -15,7 +15,6 @@ MEETING_CONFIG = namedtuple(
     "MeetingConfig",
     ("topic", "requester_name", "requester_email", "meeting_time"),
 )
-MEETING = namedtuple("Meeting", ("id", "join_url", "passcode"))
 
 JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
 JWT_PAYLOAD = {"iss": os.getenv("ZOOM_API_KEY")}
@@ -68,8 +67,8 @@ def make_meeting(meeting_config):
     # res.raise_for_status()
 
     # json = res.json()
-    # return MEETING(json["id"], json["join_url"], passcode)
-    return MEETING("12345", "url", 123456)
+    # return MEETING(id=json["id"], join_url=json["join_url"], passcode=passcode)
+    return models.Meeting(id="12345", join_url="http://zoom.us/url", passcode=123456)
 
 
 if __name__ == "__main__":
