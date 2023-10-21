@@ -8,11 +8,16 @@ from random import randint
 from authlib.jose import jwt
 from dotenv import load_dotenv
 import requests
+from rich import print
 
 load_dotenv()
 
-JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
-JWT_PAYLOAD = {"iss": os.getenv("ZOOM_API_KEY")}
+AUTH_HEADER = {"Host": "zoom.us"}
+AUTH_DATA = {
+    "grant_type": "account_credentials",
+    "account_id": os.getenv("ZOOM_ACCOUNT_ID"),
+}
+AUTH_CREDENTIALS = (os.getenv("ZOOM_CLIENT_ID"), os.getenv("ZOOM_CLIENT_SECRET"))
 
 DEFAULTS = {
     "type": 2,
@@ -29,13 +34,21 @@ DEFAULTS = {
 }
 
 
+def get_token():
+    res = requests.post(
+        "https://zoom.us/oauth/token",
+        data=AUTH_DATA,
+        headers=AUTH_HEADER,
+        auth=AUTH_CREDENTIALS,
+    )
+    return res.json()["access_token"]
+
+
 def get_auth_headers():
-    exp = datetime.datetime.now() + datetime.timedelta(hours=1)
-    JWT_PAYLOAD["exp"] = exp
-    s = jwt.encode(JWT_HEADER, JWT_PAYLOAD, os.getenv("ZOOM_API_SECRET"))
+    token = get_token()
     return {
         "content-type": "application/json",
-        "authorization": f"Bearer {str(s)[2:-1]}",
+        "authorization": f"Bearer {token}",
     }
 
 
@@ -67,13 +80,46 @@ def make_meetings(meeting_config):
     return meeting_config
 
 
+def list_recordings(start, end):
+    auth_headers = get_auth_headers()
+    start = start.strftime("%Y-%m-%d")
+    end = end.strftime("%Y-%m-%d")
+    res = requests.get(
+        f"https://api.zoom.us/v2/users/me/recordings",
+        headers=auth_headers,
+        params={"page_size": 300, "from": start, "to": end},
+    )
+    res.raise_for_status()
+
+    return res.json()["meetings"]
+
+
+def download_recording(recording):
+    auth_headers = get_auth_headers()
+    fn = f'{recording["topic"].replace(" ", "_").lower()}_{recording["start_time"].replace("-","").replace(":","").lower()}.mp4'
+    for rec in recording["recording_files"]:
+        if rec["file_type"] == "MP4":
+            with requests.get(
+                rec["download_url"], headers=auth_headers, stream=True
+            ) as r:
+                r.raise_for_status()
+                with open(fn, "wb") as fh:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        fh.write(chunk)
+    return fn
+
+
 if __name__ == "__main__":
     import json
 
-    res = requests.get(
-        "https://api.zoom.us/v2/users/me/meetings?type=scheduled&page_size=100",
-        headers=get_auth_headers(),
-    )
-    print("All meetings")
-    with open("meetings.json", "w") as fh:
-        json.dump(res.json(), fh)
+    print(get_auth_headers())
+    # recordings = list_recordings()
+    # print(download_recording(recordings[0]))
+
+    # res = requests.get(
+    #     "https://api.zoom.us/v2/users/me/meetings?type=scheduled&page_size=100",
+    #     headers=get_auth_headers(),
+    # )
+    # print("All meetings")
+    # with open("meetings.json", "w") as fh:
+    #     json.dump(res.json(), fh)
