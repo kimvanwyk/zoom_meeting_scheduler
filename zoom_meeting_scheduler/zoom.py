@@ -52,6 +52,20 @@ def get_auth_headers():
     }
 
 
+def list_meetings(start, end):
+    auth_headers = get_auth_headers()
+    start = start.strftime("%Y-%m-%d")
+    end = end.strftime("%Y-%m-%d")
+    res = requests.get(
+        f"https://api.zoom.us/v2/users/me/meetings",
+        headers=auth_headers,
+        params={"page_size": 300, "from": start, "to": end},
+    )
+    res.raise_for_status()
+
+    return res.json()["meetings"]
+
+
 def make_meetings(meeting_config):
     auth_headers = get_auth_headers()
 
@@ -112,7 +126,11 @@ def download_recording(recording):
 if __name__ == "__main__":
     import json
 
-    print(get_auth_headers())
+    meetings = list_meetings(
+        datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(weeks=12)
+    )
+    print(meetings)
+
     # recordings = list_recordings()
     # print(download_recording(recordings[0]))
 
