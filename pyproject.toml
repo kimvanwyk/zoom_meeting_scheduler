@@ -1,28 +1,22 @@
-[tool.poetry]
+[project]
 name = "lions_zoom_meeting_scheduler"
 version = "0.1.0"
 description = "CLI app to schedule Zoom meetings with a shared Zoom account and provide details to email to the meeting requester"
 authors = ["Kim van Wyk <kimv@sahomeloans.com>"]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-python-dotenv = "^0.17.1"
-authlib = "^0.15.4"
-arrow = "^1.1.0"
-requests = "^2.25.1"
-pyperclip = "^1.8.2"
-InquirerPy = "^0.2.0"
-pydantic = "^1.8.2"
-Jinja2 = "^3.0.1"
-rich = "^10.9.0"
-sendgrid = "^6.10.0"
-filetype = "^1.2.0"
-
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
-black = "^21.6b0"
-ptpython = "^3.0.17"
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires-python = ">=3.14"
+dependencies = [
+    "arrow>=1.4.0",
+    "authlib>=1.6.6",
+    "black>=26.1.0",
+    "filetype>=1.2.0",
+    "inquirerpy>=0.3.4",
+    "jinja2>=3.1.6",
+    "ptpython>=3.0.32",
+    "pydantic>=2.12.5",
+    "pyperclip>=1.11.0",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "rich>=14.2.0",
+    "sendgrid>=6.12.5",
+]
