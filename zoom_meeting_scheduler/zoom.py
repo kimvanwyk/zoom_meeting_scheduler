@@ -94,8 +94,33 @@ def make_meetings(meeting_config):
     return meeting_config
 
 
+def get_meeting_recordings(meeting_id):
+    auth_headers = get_auth_headers()
+    res = requests.get(
+        f"https://api.zoom.us/v2/meetings/{meeting_id}/recordings",
+        headers=auth_headers,
+    )
+    if res.status_code == 404:
+        return None
+    res.raise_for_status()
+
+    return res.json()
+
+
+def download_recording_file(recording_file, filename):
+    auth_headers = get_auth_headers()
+    fn = f"{filename}.{recording_file['file_extension'].lower()}"
+    res = requests.get(
+        recording_file["download_url"],
+        headers=auth_headers,
+    )
+    with open(fn, "wb") as fh:
+        fh.write(res.content)
+
+
 def list_recordings(start, end):
     auth_headers = get_auth_headers()
+    auth_headers["scopes"] = "recording:read:admin"
     start = start.strftime("%Y-%m-%d")
     end = end.strftime("%Y-%m-%d")
     res = requests.get(
@@ -126,12 +151,66 @@ def download_recording(recording):
 if __name__ == "__main__":
     import json
 
-    meetings = list_meetings(
-        datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(weeks=12)
-    )
-    print(meetings)
+    # meetings = list_meetings(
+    #     datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(weeks=12)
+    # )
+    if 0:
+        meetings = list_meetings(
+            datetime.datetime(day=1, month=7, year=2025),
+            datetime.datetime(day=1, month=7, year=2026),
+        )
 
-    # recordings = list_recordings()
+        for m in meetings:
+            print(m["topic"])
+            print(m["id"])
+            m = get_meeting_recordings(m["id"])
+            if m:
+                for rf in m["recording_files"]:
+                    print(rf["download_url"])
+
+    if 0:
+        reqs = [
+            "2025-08-26",
+            "2025-09-30",
+            "2025-10-28",
+            "2025-11-25",
+            "2026-01-27",
+            "2026-02-24",
+            "2026-03-31",
+            "2026-04-28",
+            "2026-05-26",
+            "2026-06-30",
+        ]
+
+        meetings = list_meetings(
+            datetime.datetime(day=25, month=8, year=2025),
+            datetime.datetime(day=1, month=7, year=2026),
+        )
+
+        for m in meetings:
+            if any([t in m["start_time"] for t in reqs]):
+                print(m["topic"])
+                print(m["start_time"])
+    if 0:
+        ids = [81048019829]
+        for i in ids:
+            m = get_meeting_recordings(i)
+            if m:
+                filename = m["topic"].lower().replace(" ", "_")
+                print(filename)
+                os.makedirs(filename, exist_ok=True)
+                os.chdir(filename)
+                for n, rf in enumerate(m["recording_files"], 1):
+                    download_recording_file(rf, f"{filename}_{n:02}")
+                os.chdir("../")
+
+    if 0:
+        dt = datetime.datetime.now()
+        recordings = list_recordings(dt - datetime.timedelta(days=365), dt)
+        for d in recordings:
+            print(d["topic"])
+            for rf in d["recording_files"]:
+                print(rf["download_url"])
     # print(download_recording(recordings[0]))
 
     # res = requests.get(
@@ -141,3 +220,56 @@ if __name__ == "__main__":
     # print("All meetings")
     # with open("meetings.json", "w") as fh:
     #     json.dump(res.json(), fh)
+
+    if 0:
+        meetings = list_meetings(
+            datetime.datetime(day=1, month=7, year=2025),
+            datetime.datetime(day=1, month=7, year=2026),
+        )
+        for m in meetings:
+            print(m["topic"])
+        print(len(meetings))
+
+    if 1:
+        # from glt_meetings import meetings
+        # requester = models.Requester(
+        #     name="Patrick Mills", email="patrick.mills@za.saabgroup.com"
+        # )
+
+        # from strengthen_410e_meetings import meetings
+        # requester = models.Requester(name="Patrick Gamedze", email="patg@swazi.net")
+
+        from cabinet_meetings import meetings
+
+        requester = models.Requester(
+            name="Rowan Tuckett", email="rowan.tuckett@lions410e.org.za"
+        )
+
+        if 1:
+            for topic, dt, duration in meetings:
+                print(dt)
+                meetings = list_meetings(dt, dt)
+                for m in meetings:
+                    print(f'{m["topic"]} ({m["start_time"]}) ({m["duration"]} hr(s))')
+                    print(m["join_url"])
+                    print()
+                print()
+
+        if 0:
+            for topic, dt, duration in meetings[]:
+                mt = models.MeetingTime(
+                    datetime=models.arrow.get(dt), duration=duration
+                )
+                mc = models.MeetingConfig(
+                    topic=topic,
+                    requester=requester,
+                    meetings=[models.Meeting(meeting_time=mt)],
+                )
+                make_meetings(mc)
+                meeting = mc.meetings[0]
+                print(
+                    f"{mc.topic} ({meeting.meeting_time.datetime.datetime:%Y/%m/%d %H:%M} ({meeting.meeting_time.duration} hrs)"
+                )
+                print(f"Link: {meeting.zoom_meeting.join_url}")
+                print(f"Passcode: {meeting.zoom_meeting.passcode}")
+                print()
