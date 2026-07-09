@@ -52,18 +52,34 @@ def get_auth_headers():
     }
 
 
-def list_meetings(start, end):
+def list_meetings(start, end, typ="upcoming_meetings"):
     auth_headers = get_auth_headers()
     start = start.strftime("%Y-%m-%d")
     end = end.strftime("%Y-%m-%d")
     res = requests.get(
-        f"https://api.zoom.us/v2/users/me/meetings",
+        "https://api.zoom.us/v2/users/me/meetings",
         headers=auth_headers,
-        params={"page_size": 300, "from": start, "to": end},
+        params={
+            "page_size": 300,
+            "from": start,
+            "to": end,
+            "type": typ,
+        },
     )
     res.raise_for_status()
 
     return res.json()["meetings"]
+
+
+def get_meeting(meeting_id):
+    auth_headers = get_auth_headers()
+    res = requests.get(
+        f"https://api.zoom.us/v2//meetings/{meeting_id}",
+        headers=auth_headers,
+    )
+    res.raise_for_status()
+
+    return res.json()
 
 
 def make_meetings(meeting_config):
@@ -230,7 +246,7 @@ if __name__ == "__main__":
             print(m["topic"])
         print(len(meetings))
 
-    if 1:
+    if 0:
         # from glt_meetings import meetings
         # requester = models.Requester(
         #     name="Patrick Mills", email="patrick.mills@za.saabgroup.com"
@@ -239,13 +255,23 @@ if __name__ == "__main__":
         # from strengthen_410e_meetings import meetings
         # requester = models.Requester(name="Patrick Gamedze", email="patg@swazi.net")
 
-        from cabinet_meetings import meetings
+        # from cabinet_meetings import meetings
 
-        requester = models.Requester(
-            name="Rowan Tuckett", email="rowan.tuckett@lions410e.org.za"
-        )
+        # requester = models.Requester(
+        #     name="Rowan Tuckett", email="rowan.tuckett@lions410e.org.za"
+        # )
 
-        if 1:
+        # from gmt_get_meetings import meetings
+
+        # requester = models.Requester(
+        #     name="Sanet Emmerick", email="admin@definefs.co.za"
+        # )
+
+        from training_meetings import meetings
+
+        requester = models.Requester(name="Lindie van Wyk", email="lindie@faerie.co.za")
+
+        if 0:
             for topic, dt, duration in meetings:
                 print(dt)
                 meetings = list_meetings(dt, dt)
@@ -256,7 +282,7 @@ if __name__ == "__main__":
                 print()
 
         if 0:
-            for topic, dt, duration in meetings[]:
+            for topic, dt, duration in meetings:
                 mt = models.MeetingTime(
                     datetime=models.arrow.get(dt), duration=duration
                 )
@@ -273,3 +299,6 @@ if __name__ == "__main__":
                 print(f"Link: {meeting.zoom_meeting.join_url}")
                 print(f"Passcode: {meeting.zoom_meeting.passcode}")
                 print()
+
+    if 1:
+        print(get_meeting(81660399912))
