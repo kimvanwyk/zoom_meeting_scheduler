@@ -5,7 +5,12 @@ from rich import print
 
 import zoom
 
-EXCLUDED_IDS = (81878881659, 86823702954, 81660399912)
+EXCLUDED_IDS = (
+    81878881659,
+    86823702954,
+    81660399912,
+    85762686483,
+)
 end_date = arrow.get()
 if end_date.month <= 6:
     end_date = end_date.shift(years=-1)
@@ -34,8 +39,15 @@ for meeting in meetings.values():
     dt = arrow.get(meeting["start_time"])
     dt = dt.shift(hours=2)
     time = f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=meeting["duration"]).format("HH:mm")} ({dt.format("dddd")})'
+    if "18:54" in time:
+        print(meeting)
     sorted_meetings[dt.datetime.date()].append(
-        (f'{dt.format("YYYYMMDDHHmm")}', time, meeting["topic"])
+        (
+            f'{dt.format("YYYYMMDDTHHmm")}',
+            str(meeting["duration"]),
+            time,
+            meeting["topic"],
+        )
     )
 
 dt = arrow.get("2026/06/01")
@@ -52,7 +64,8 @@ while True:
     dt = dt.shift(weeks=2)
     sorted_meetings[dt.datetime.date()].append(
         (
-            f'{dt.format("YYYYMMDDHHmm")}',
+            f'{dt.format("YYYYMMDDTHHmm")}',
+            "90",
             f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "GMT/GET Meeting",
         )
@@ -71,7 +84,8 @@ while True:
     dt = dt.shift(weeks=1)
     sorted_meetings[dt.datetime.date()].append(
         (
-            f'{dt.format("YYYYMMDDHHmm")}',
+            f'{dt.format("YYYYMMDDTHHmm")}',
+            "90",
             f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "Generic Meeting",
         )
@@ -89,7 +103,8 @@ while True:
         dt = dt.shift(days=1)
     sorted_meetings[dt.datetime.date()].append(
         (
-            f'{dt.format("YYYYMMDDHHmm")}',
+            f'{dt.format("YYYYMMDDTHHmm")}',
+            "90",
             f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "MD410 Club Membership Chair Forum",
         )
@@ -101,9 +116,8 @@ meetings = {}
 for k in keys:
     meetings[k] = sorted_meetings[k]
 
-print(meetings)
 with open("zoom_meetings.csv", "w") as fh:
-    fh.write("timestamp|date_description|meeting_name\n")
+    fh.write("timestamp|duration_mins|date_description|meeting_name\n")
     for row in meetings.values():
         for meeting in row:
             fh.write("|".join(meeting) + "\n")
@@ -118,7 +132,7 @@ for k in meetings:
         out.append(f"          <h3>{k:%B %Y}</h3>")
         out.append(f"          <ul>")
     for meeting in meetings[k]:
-        out.append(f"            <li>{meeting[0]}</li>")
+        out.append(f"            <li>{meeting[2]}</li>")
 out.append("          </ul>")
 with open("zoom.html", "w") as fh:
     with open("page_preamble.html", "r") as fin:
