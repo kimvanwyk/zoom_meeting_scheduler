@@ -109,7 +109,18 @@ def print_message(meeting_config):
     input()
 
 
+def write_csv(meeting_config):
+    with open("zoom_meetings.csv", "a") as fh:
+        for meeting in meeting_config.meetings:
+            dt = meeting.meeting_time.datetime
+            date_description = f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=meeting.meeting_time.duration).format("HH:mm")} ({dt.format("dddd")})'
+            fh.write(
+                f"{dt.format('YYYYMMDDTHHmm')}|{meeting.meeting_time.duration}|{date_description}|{meeting_config.topic}\n"
+            )
+
+
 if __name__ == "__main__":
     (mc) = ask_questions()
     mc = make_meetings(mc)
     print_message(mc)
+    write_csv(mc)
