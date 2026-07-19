@@ -33,7 +33,7 @@ sorted_meetings = defaultdict(list)
 for meeting in meetings.values():
     dt = arrow.get(meeting["start_time"])
     dt = dt.shift(hours=2)
-    time = f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=meeting["duration"]).format("HH:mm")}'
+    time = f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=meeting["duration"]).format("HH:mm")} ({dt.format("dddd")})'
     sorted_meetings[dt.datetime.date()].append(
         (f'{dt.format("YYYYMMDDHHmm")}', time, meeting["topic"])
     )
@@ -53,7 +53,7 @@ while True:
     sorted_meetings[dt.datetime.date()].append(
         (
             f'{dt.format("YYYYMMDDHHmm")}',
-            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")}',
+            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "GMT/GET Meeting",
         )
     )
@@ -72,7 +72,7 @@ while True:
     sorted_meetings[dt.datetime.date()].append(
         (
             f'{dt.format("YYYYMMDDHHmm")}',
-            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")}',
+            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "Generic Meeting",
         )
     )
@@ -90,7 +90,7 @@ while True:
     sorted_meetings[dt.datetime.date()].append(
         (
             f'{dt.format("YYYYMMDDHHmm")}',
-            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")}',
+            f'{dt.format("YYYY/MM/DD HH:mm")} - {dt.shift(minutes=90).format("HH:mm")} ({dt.format("dddd")})',
             "MD410 Club Membership Chair Forum",
         )
     )
