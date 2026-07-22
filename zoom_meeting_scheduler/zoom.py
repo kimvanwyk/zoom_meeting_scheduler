@@ -246,7 +246,7 @@ if __name__ == "__main__":
             print(m["topic"])
         print(len(meetings))
 
-    if 0:
+    if 1:
         # from glt_meetings import meetings
         # requester = models.Requester(
         #     name="Patrick Mills", email="patrick.mills@za.saabgroup.com"
@@ -274,14 +274,13 @@ if __name__ == "__main__":
         if 0:
             for topic, dt, duration in meetings:
                 print(dt)
-                meetings = list_meetings(dt, dt)
-                for m in meetings:
+                for m in list_meetings(dt, dt):
                     print(f'{m["topic"]} ({m["start_time"]}) ({m["duration"]} hr(s))')
                     print(m["join_url"])
                     print()
                 print()
 
-        if 0:
+        if 1:
             for topic, dt, duration in meetings:
                 mt = models.MeetingTime(
                     datetime=models.arrow.get(dt), duration=duration
@@ -300,5 +299,5 @@ if __name__ == "__main__":
                 print(f"Passcode: {meeting.zoom_meeting.passcode}")
                 print()
 
-    if 1:
+    if 0:
         print(get_meeting(81660399912))
